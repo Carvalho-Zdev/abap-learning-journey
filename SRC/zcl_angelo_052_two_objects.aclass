@@ -1,0 +1,89 @@
+CLASS zcl_angelo_052_two_objects DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun.
+
+    METHODS constructor
+      IMPORTING
+        iv_travel_id TYPE  /dmo/travel_id OPTIONAL.
+
+
+    METHODS get_travel_id
+      RETURNING
+        VALUE(rv_travel_id) TYPE /dmo/travel_id.
+
+
+       METHODS set_travel_id
+       IMPORTING
+         iv_travel_id TYPE /dmo/travel_id.
+
+
+  PRIVATE SECTION.
+
+    DATA mv_travel_id TYPE /dmo/travel_id.
+
+
+ENDCLASS.
+
+CLASS zcl_angelo_052_two_objects IMPLEMENTATION.
+
+  METHOD constructor.
+
+    mv_travel_id = iv_travel_id.
+
+  ENDMETHOD.
+
+
+
+  METHOD get_travel_id.
+
+    rv_travel_id = mv_travel_id.
+
+  ENDMETHOD.
+
+  METHOD set_travel_id.
+
+     mv_travel_id = iv_travel_id.
+
+  ENDMETHOD.
+
+
+
+  METHOD if_oo_adt_classrun~main.
+
+
+ DATA(lo_travel_1) = NEW zcl_angelo_052_two_objects(
+ iv_travel_id = '00000001'
+ ).
+
+ DATA(lo_travel_2) = NEW  zcl_angelo_052_two_objects(
+    iv_travel_id = '00000002'
+  ).
+
+lo_travel_1->set_travel_id(
+  iv_travel_id = '00000099'
+).
+
+
+
+   out->write(
+    |Object 1: { lo_travel_1->get_travel_id( ) }|
+  ).
+
+
+
+   out->write(
+    |Object 2: { lo_travel_2->get_travel_id( ) }|
+  ).
+
+
+
+
+  ENDMETHOD.
+
+
+ENDCLASS.

@@ -1,0 +1,153 @@
+CLASS zcl_angelo_060_save DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun.
+
+    METHODS load
+      IMPORTING
+        iv_travel_id TYPE /dmo/travel_id.
+
+    METHODS is_found
+      RETURNING
+        VALUE(rv_found) TYPE abap_bool.
+
+    METHODS get_summary
+      RETURNING
+        VALUE(rv_summary) TYPE string.
+
+    METHODS set_customer_id
+      IMPORTING
+        iv_customer_id TYPE /dmo/customer_id.
+
+    METHODS save
+      RETURNING
+        VALUE(rv_message) TYPE string.
+
+  PRIVATE SECTION.
+
+    DATA mv_travel_id   TYPE /dmo/travel_id.
+    DATA mv_customer_id TYPE /dmo/customer_id.
+    DATA mv_agency_id   TYPE /dmo/agency_id.
+    DATA mv_found       TYPE abap_bool.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_060_save IMPLEMENTATION.
+
+  METHOD load.
+
+    SELECT SINGLE FROM /dmo/travel
+      FIELDS
+        travel_id,
+        customer_id,
+        agency_id
+      WHERE travel_id = @iv_travel_id
+      INTO @DATA(ls_travel).
+
+    IF sy-subrc <> 0.
+
+      me->mv_found = abap_false.
+      RETURN.
+
+    ENDIF.
+
+    me->mv_found       = abap_true.
+    me->mv_travel_id   = ls_travel-travel_id.
+    me->mv_customer_id = ls_travel-customer_id.
+    me->mv_agency_id   = ls_travel-agency_id.
+
+  ENDMETHOD.
+
+
+  METHOD is_found.
+
+    rv_found = me->mv_found.
+
+  ENDMETHOD.
+
+
+  METHOD get_summary.
+
+    rv_summary =
+      |Travel ID: { me->mv_travel_id }{ cl_abap_char_utilities=>newline }| &&
+      |Customer ID: { me->mv_customer_id }{ cl_abap_char_utilities=>newline }| &&
+      |Agency ID: { me->mv_agency_id }|.
+
+  ENDMETHOD.
+
+
+  METHOD set_customer_id.
+
+    IF iv_customer_id IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    me->mv_customer_id = iv_customer_id.
+
+  ENDMETHOD.
+
+
+  METHOD save.
+
+    IF me->mv_found = abap_false.
+
+      rv_message = |The travel cannot be saved because it was not loaded.|.
+
+      RETURN.
+
+    ENDIF.
+
+    rv_message =
+      |Simulation: Travel { me->mv_travel_id } would be saved | &&
+      |with Customer ID { me->mv_customer_id } | &&
+      |and Agency ID { me->mv_agency_id }.|.
+
+  ENDMETHOD.
+
+
+  METHOD if_oo_adt_classrun~main.
+
+    DATA(lo_travel) = NEW zcl_angelo_060_save( ).
+
+    lo_travel->load(
+      iv_travel_id = '00000034'
+    ).
+
+    IF lo_travel->is_found( ) = abap_false.
+
+      out->write(
+        |Travel not found.|
+      ).
+
+      RETURN.
+
+    ENDIF.
+
+    out->write(
+      |Before change:{ cl_abap_char_utilities=>newline }{
+        lo_travel->get_summary( )
+      }|
+    ).
+
+    lo_travel->set_customer_id(
+      iv_customer_id = '000999'
+    ).
+
+    out->write(
+      |After change in the object:{ cl_abap_char_utilities=>newline }{
+        lo_travel->get_summary( )
+      }|
+    ).
+
+    out->write(
+      lo_travel->save( )
+    ).
+
+  ENDMETHOD.
+
+ENDCLASS.

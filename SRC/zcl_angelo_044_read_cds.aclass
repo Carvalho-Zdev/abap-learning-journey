@@ -1,0 +1,72 @@
+CLASS zcl_angelo_044_read_cds DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+       INTERFACES if_oo_adt_classrun .
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_044_read_cds IMPLEMENTATION.
+
+
+METHOD if_oo_adt_classrun~main.
+
+
+
+
+SELECT FROM /dmo/travel
+  FIELDS
+    COUNT( DISTINCT currency_code ) AS total_currencies
+  INTO @DATA(lv_total_currencies).
+
+out->write(
+  |Quantidade de moedas diferentes: { lv_total_currencies }|
+).
+
+
+
+SELECT FROM /dmo/travel
+  FIELDS
+    agency_id,
+    currency_code,
+    COUNT( * )         AS total_travels,
+    SUM( total_price ) AS total_sales
+  GROUP BY
+    agency_id,
+    currency_code
+  ORDER BY
+    agency_id,
+    currency_code
+  INTO TABLE @DATA(lt_result).
+
+out->write(
+  |Total de linhas no resultado: { lines( lt_result ) }|
+).
+
+DATA lv_index TYPE i VALUE 0.
+
+LOOP AT lt_result INTO DATA(ls_result).
+
+  lv_index += 1.
+
+  out->write(
+    |Linha { lv_index } de { lines( lt_result ) } - | &&
+    |Agência: { ls_result-agency_id } - | &&
+    |Moeda: { ls_result-currency_code } - | &&
+    |Viagens: { ls_result-total_travels } - | &&
+    |Valor total: { ls_result-total_sales }|
+  ).
+
+ENDLOOP.
+
+
+
+
+
+ENDMETHOD.
+
+
+ENDCLASS.

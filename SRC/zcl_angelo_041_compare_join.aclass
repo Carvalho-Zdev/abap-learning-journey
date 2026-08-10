@@ -1,0 +1,64 @@
+CLASS zcl_angelo_041_compare_join DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_041_compare_join IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    SELECT
+      FROM /dmo/travel AS travel
+      INNER JOIN /dmo/customer AS customer
+        ON customer~customer_id = travel~customer_id
+      FIELDS travel~travel_id,
+             travel~customer_id,
+             customer~first_name,
+             customer~last_name
+      INTO TABLE @DATA(lt_inner).
+
+    SELECT
+      FROM /dmo/travel AS travel
+      LEFT OUTER JOIN /dmo/customer AS customer
+        ON customer~customer_id = travel~customer_id
+      FIELDS travel~travel_id,
+             travel~customer_id,
+             customer~first_name,
+             customer~last_name
+             WHERE customer~customer_id IS NULL
+      INTO TABLE @DATA(lt_left).
+
+
+
+
+      LOOP AT lt_left INTO DATA(ls_left).
+
+  out->write(
+    |Travel: { ls_left-travel_id } - |
+    && |Cliente informado: { ls_left-customer_id }|
+  ).
+
+
+
+ENDLOOP.
+
+
+
+
+    out->write(
+      |Quantidade com INNER JOIN: { lines( lt_inner ) }|
+    ).
+
+    out->write(
+      |Quantidade com LEFT OUTER JOIN: { lines( lt_left ) }|
+    ).
+
+  ENDMETHOD.
+
+ENDCLASS.

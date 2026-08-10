@@ -1,0 +1,45 @@
+CLASS zcl_angelo_021_sql_debug DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_021_sql_debug IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    SELECT
+      FROM /dmo/travel
+      FIELDS travel_id,
+             agency_id,
+             customer_id,
+             total_price,
+             currency_code,
+             description,
+             status
+      WHERE currency_code = 'EUR'
+      INTO TABLE @DATA(lt_travels).
+
+    DATA(lv_count) = lines( lt_travels ).
+
+    out->write( |Quantidade de viagens encontradas: { lv_count }| ).
+
+    LOOP AT lt_travels INTO DATA(ls_travel).
+
+      out->write( |Viagem: { ls_travel-travel_id }| ).
+      out->write( |Cliente: { ls_travel-customer_id }| ).
+      out->write( |Valor: { ls_travel-total_price } { ls_travel-currency_code }| ).
+      out->write( |Descricao: { ls_travel-description }| ).
+      out->write( '--------------------------------------' ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

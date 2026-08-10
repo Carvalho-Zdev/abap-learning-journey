@@ -1,0 +1,134 @@
+CLASS zcl_angelo_056_travel_data DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+    METHODS constructor
+      IMPORTING
+        iv_travel_id   TYPE /dmo/travel_id OPTIONAL
+        iv_customer_id TYPE /dmo/customer_id OPTIONAL
+        iv_agency_id   TYPE /dmo/agency_id OPTIONAL.
+
+    METHODS get_travel_id
+      RETURNING
+        VALUE(rv_travel_id) TYPE /dmo/travel_id.
+
+    METHODS get_customer_id
+      RETURNING
+        VALUE(rv_customer_id) TYPE /dmo/customer_id.
+
+    METHODS get_agency_id
+      RETURNING
+        VALUE(rv_agency_id) TYPE /dmo/agency_id.
+
+    METHODS set_travel_id
+      IMPORTING
+        iv_travel_id TYPE /dmo/travel_id.
+
+    METHODS set_customer_id
+      IMPORTING
+        iv_customer_id TYPE /dmo/customer_id.
+
+    METHODS set_agency_id
+      IMPORTING
+        iv_agency_id TYPE /dmo/agency_id.
+
+
+
+
+  PRIVATE SECTION.
+
+    DATA mv_travel_id  TYPE /dmo/travel_id.
+    DATA mv_customer_id TYPE /dmo/customer_id.
+    DATA mv_agency_id   TYPE /dmo/agency_id.
+
+
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_056_travel_data IMPLEMENTATION.
+
+
+  METHOD constructor.
+
+    me->mv_travel_id   = iv_travel_id.
+    me->mv_customer_id = iv_customer_id.
+    me->mv_agency_id   = iv_agency_id.
+
+  ENDMETHOD.
+
+  METHOD get_travel_id.
+
+    rv_travel_id = me->mv_travel_id.
+
+  ENDMETHOD.
+
+  METHOD get_customer_id.
+
+    rv_customer_id = me->mv_customer_id.
+
+  ENDMETHOD.
+
+  METHOD get_agency_id.
+
+    rv_agency_id = me->mv_agency_id.
+
+  ENDMETHOD.
+
+  " MUDANÇA DE CODIGO AGORA É O SETTER"
+
+  METHOD set_travel_id.
+
+    me->mv_travel_id = iv_travel_id.
+
+  ENDMETHOD.
+
+  METHOD set_customer_id.
+
+    me->mv_customer_id = iv_customer_id.
+
+  ENDMETHOD.
+
+  METHOD set_agency_id.
+
+    me->mv_agency_id = iv_agency_id.
+
+  ENDMETHOD.
+
+  METHOD if_oo_adt_classrun~main.
+
+    DATA(lo_travel) = NEW zcl_angelo_056_travel_data(
+
+          iv_travel_id   = '00000001'
+          iv_customer_id = '000999'
+          iv_agency_id   = '070001'
+
+).
+
+
+        out->write(
+  |Travel ID: { lo_travel->get_travel_id( ) }|
+).
+
+out->write(
+  |Customer ID: { lo_travel->get_customer_id( ) }|
+).
+
+out->write(
+  |Agency ID: { lo_travel->get_agency_id( ) }|
+).
+
+
+
+ENDMETHOD.
+
+
+
+ENDCLASS.
+
+
+

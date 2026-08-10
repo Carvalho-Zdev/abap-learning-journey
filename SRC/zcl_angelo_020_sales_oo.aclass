@@ -1,0 +1,314 @@
+CLASS zcl_angelo_020_sales_oo DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+  PRIVATE SECTION.
+
+    TYPES:
+      BEGIN OF ty_customer,
+        customer_id TYPE string,
+        name        TYPE string,
+        city        TYPE string,
+        vip         TYPE abap_bool,
+      END OF ty_customer.
+
+    TYPES tt_customer TYPE STANDARD TABLE OF ty_customer WITH EMPTY KEY.
+
+    TYPES:
+      BEGIN OF ty_order,
+        order_id    TYPE string,
+        customer_id TYPE string,
+        product     TYPE string,
+        quantity    TYPE i,
+        unit_price  TYPE decfloat34,
+        discount    TYPE decfloat34,
+        status      TYPE string,
+        due_date    TYPE d,
+      END OF ty_order.
+
+    TYPES tt_order TYPE STANDARD TABLE OF ty_order WITH EMPTY KEY.
+
+    DATA mt_customers   TYPE tt_customer.
+    DATA mt_orders      TYPE tt_order.
+    DATA mv_grand_total TYPE decfloat34.
+
+    METHODS run
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+    METHODS load_customers.
+
+    METHODS load_orders.
+
+    METHODS calculate_order_total
+      IMPORTING
+        is_order        TYPE ty_order
+      RETURNING
+        VALUE(rv_total) TYPE decfloat34.
+
+    METHODS calculate_grand_total
+      RETURNING
+        VALUE(rv_total) TYPE decfloat34.
+
+    METHODS get_customer_name
+      IMPORTING
+        iv_customer_id TYPE string
+      RETURNING
+        VALUE(rv_name) TYPE string.
+
+    METHODS get_customer_city
+      IMPORTING
+        iv_customer_id TYPE string
+      RETURNING
+        VALUE(rv_city) TYPE string.
+
+    METHODS is_order_late
+      IMPORTING
+        is_order       TYPE ty_order
+      RETURNING
+        VALUE(rv_late) TYPE abap_bool.
+
+    METHODS display_header
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+    METHODS display_orders
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+    METHODS display_open_orders
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+    METHODS display_customer_summary
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+    METHODS display_footer
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_020_sales_oo IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+    run( io_out = out ).
+  ENDMETHOD.
+
+
+  METHOD run.
+
+    load_customers( ).
+    load_orders( ).
+
+    mv_grand_total = calculate_grand_total( ).
+
+    display_header( io_out = io_out ).
+    display_orders( io_out = io_out ).
+    display_open_orders( io_out = io_out ).
+    display_customer_summary( io_out = io_out ).
+    display_footer( io_out = io_out ).
+  ENDMETHOD.
+
+
+  METHOD load_customers.
+    mt_customers = VALUE #(
+      ( customer_id = 'C001' name = 'Mercado Central'    city = 'Belo Horizonte' vip = abap_true  )
+      ( customer_id = 'C002' name = 'Restaurante Sakura' city = 'Sao Paulo'      vip = abap_true  )
+      ( customer_id = 'C003' name = 'Peixaria Atlantico' city = 'Rio de Janeiro' vip = abap_false )
+      ( customer_id = 'C004' name = 'Emporio Premium'    city = 'Curitiba'       vip = abap_true  )
+      ( customer_id = 'C005' name = 'Hotel Mar Azul'     city = 'Vitoria'        vip = abap_false )
+    ).
+  ENDMETHOD.
+
+
+  METHOD
+  load_orders.
+    mt_orders = VALUE #(
+      ( order_id = 'P001' customer_id = 'C001' product = 'Salmao congelado 10kg'
+        quantity = 20 unit_price = '780.00' discount = '300.00' status = 'OPEN'   due_date = '20260710' )
+
+      ( order_id = 'P002' customer_id = 'C002' product = 'File de salmao 5kg'
+        quantity = 40 unit_price = '410.00' discount = '500.00' status = 'OPEN'   due_date = '20260703' )
+
+      ( order_id = 'P003' customer_id = 'C003' product = 'Salmao em porcoes 2kg'
+        quantity = 30 unit_price = '185.00' discount = '0.00'   status = 'CLOSED' due_date = '20260628' )
+
+      ( order_id = 'P004' customer_id = 'C004' product = 'Caixa premium 12kg'
+        quantity = 15 unit_price = '980.00' discount = '800.00' status = 'OPEN'   due_date = '20260715' )
+
+      ( order_id = 'P005' customer_id = 'C005' product = 'File congelado 5kg'
+        quantity = 18 unit_price = '430.00' discount = '150.00' status = 'CLOSED' due_date = '20260701' )
+
+      ( order_id = 'P006' customer_id = 'C002' product = 'Salmao congelado 10kg'
+        quantity = 10 unit_price = '760.00' discount = '0.00'   status = 'OPEN'   due_date = '20260720' )
+
+      ( order_id = 'P007' customer_id = 'C001' product = 'Caixa file 5kg'
+        quantity = 22 unit_price = '420.00' discount = '200.00' status = 'OPEN'   due_date = '20260705' )
+    ).
+  ENDMETHOD.
+
+
+  METHOD calculate_order_total.
+    rv_total = ( is_order-quantity * is_order-unit_price ) - is_order-discount.
+
+    IF rv_total < 0.
+      rv_total = 0.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD calculate_grand_total.
+    rv_total = 0.
+
+    LOOP AT mt_orders INTO DATA(ls_order).
+      rv_total = rv_total + calculate_order_total( ls_order ).
+    ENDLOOP.
+  ENDMETHOD.
+
+
+  METHOD get_customer_name.
+    rv_name = 'Cliente nao encontrado'.
+
+    READ TABLE mt_customers INTO DATA(ls_customer)
+      WITH KEY customer_id = iv_customer_id.
+
+    IF sy-subrc = 0.
+      rv_name = ls_customer-name.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD
+  get_customer_city.
+    rv_city = '-'.
+
+    READ TABLE mt_customers INTO DATA(ls_customer)
+      WITH KEY customer_id = iv_customer_id.
+
+    IF sy-subrc = 0.
+      rv_city = ls_customer-city.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD is_order_late.
+    rv_late = abap_false.
+
+
+
+  ENDMETHOD.
+
+
+  METHOD display_header.
+    io_out->write( '==============================================' ).
+    io_out->write( ' MINI PROJETO ABAP OO - CONTROLE DE PEDIDOS' ).
+    io_out->write( '==============================================' ).
+    io_out->write( |Data atual do sistema: { sy-datum }| ).
+    io_out->write( |Quantidade de clientes: { lines( mt_customers ) }| ).
+    io_out->write( |Quantidade de pedidos: { lines( mt_orders ) }| ).
+    io_out->write( ' ' ).
+  ENDMETHOD.
+
+
+  METHOD display_orders.
+    io_out->write( 'TODOS OS PEDIDOS' ).
+    io_out->write( '----------------------------------------------' ).
+
+    LOOP AT mt_orders INTO DATA(ls_order).
+      DATA(lv_customer_name) = get_customer_name( ls_order-customer_id ).
+      DATA(lv_customer_city) = get_customer_city( ls_order-customer_id ).
+      DATA(lv_total)         = calculate_order_total( ls_order ).
+      DATA(lv_late_text)     = COND string(
+                                  WHEN is_order_late( ls_order ) = abap_true
+                                  THEN 'SIM'
+                                  ELSE 'NAO' ).
+
+      io_out->write( |Pedido: { ls_order-order_id }| ).
+      io_out->write( |Cliente: { lv_customer_name } - { lv_customer_city }| ).
+      io_out->write( |Produto: { ls_order-product }| ).
+      io_out->write( |Qtd: { ls_order-quantity }  Valor unit.: { ls_order-unit_price }| ).
+      io_out->write( |Desconto: { ls_order-discount }  Total: { lv_total }| ).
+      io_out->write( |Status: { ls_order-status }  Vencido: { lv_late_text }| ).
+      io_out->write( '----------------------------------------------' ).
+    ENDLOOP.
+
+    io_out->write( ' ' ).
+  ENDMETHOD.
+
+
+  METHOD display_open_orders.
+    DATA lv_open_total TYPE decfloat34.
+    DATA lv_open_count TYPE i.
+
+    lv_open_total = 0.
+    lv_open_count = 0.
+
+    io_out->write( 'PEDIDOS EM ABERTO' ).
+    io_out->write( '----------------------------------------------' ).
+
+    LOOP AT mt_orders INTO DATA(ls_order) WHERE status = 'OPEN'.
+      DATA(lv_total) = calculate_order_total( ls_order ).
+
+      lv_open_total = lv_open_total + lv_total.
+      lv_open_count = lv_open_count + 1.
+
+      io_out->write( |{ ls_order-order_id } - { get_customer_name( ls_order-customer_id ) } - { lv_total }| ).
+    ENDLOOP.
+
+    io_out->write( '----------------------------------------------' ).
+    io_out->write( |Total de pedidos abertos: { lv_open_count }| ).
+    io_out->write( |Valor total em aberto: { lv_open_total }| ).
+    io_out->write( ' ' ).
+  ENDMETHOD.
+
+
+  METHOD display_customer_summary.
+    io_out->write( 'RESUMO POR CLIENTE' ).
+    io_out->write( '----------------------------------------------' ).
+
+    LOOP AT mt_customers INTO DATA(ls_customer).
+      DATA lv_customer_total TYPE decfloat34.
+      DATA lv_customer_count TYPE i.
+
+      lv_customer_total = 0.
+      lv_customer_count = 0.
+
+      LOOP AT mt_orders INTO DATA(ls_order)
+        WHERE customer_id = ls_customer-customer_id.
+
+        lv_customer_total = lv_customer_total + calculate_order_total( ls_order ).
+        lv_customer_count = lv_customer_count + 1.
+      ENDLOOP.
+
+      DATA(lv_vip_text) = COND string(
+                            WHEN ls_customer-vip = abap_true
+                            THEN 'VIP'
+                            ELSE 'NORMAL' ).
+
+      io_out->write( |Cliente: { ls_customer-name }| ).
+      io_out->write( |Cidade: { ls_customer-city }  Tipo: { lv_vip_text }| ).
+      io_out->write( |Pedidos: { lv_customer_count }  Total comprado: { lv_customer_total }| ).
+      io_out->write( '----------------------------------------------' ).
+    ENDLOOP.
+
+    io_out->write( ' ' ).
+  ENDMETHOD.
+
+
+  METHOD display_footer.
+    io_out->write( 'FECHAMENTO DO RELATORIO' ).
+    io_out->write( '----------------------------------------------' ).
+    io_out->write( |Valor geral dos pedidos: { mv_grand_total }| ).
+    io_out->write( 'Projeto finalizado com sucesso.' ).
+    io_out->write( '==============================================' ).
+  ENDMETHOD.
+
+ENDCLASS.

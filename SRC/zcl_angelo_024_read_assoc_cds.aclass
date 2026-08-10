@@ -1,0 +1,55 @@
+CLASS zcl_angelo_024_read_assoc_cds DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_024_read_assoc_cds IMPLEMENTATION.
+
+ METHOD if_oo_adt_classrun~main.
+
+ DATA(lv_country)   = 'US'.
+
+ DATA lt_cities TYPE RANGE OF string.
+
+ lt_cities = VALUE #(
+    ( sign = 'I' option = 'EQ' low = 'Chicago' )
+    ( sign = 'I' option = 'EQ' low = 'San Francisco' )
+  ).
+
+
+  SELECT
+    FROM zi_angelo_travel_customer
+    FIELDS travel_id,
+           customer_id,
+           first_name,
+           last_name,
+           city,
+           country_code
+    WHERE country_code =  @lv_country
+      AND  city IN  @lt_cities
+        ORDER BY  travel_id DESCENDING
+        INTO TABLE @DATA(lt_result)
+        UP TO 15 ROWS.
+
+  out->write( |Quantidade encontrada: { lines( lt_result ) }| ).
+
+  LOOP AT lt_result INTO DATA(ls_result).
+
+    out->write( |Viagem: { ls_result-travel_id }| ).
+    out->write( |Cliente: { ls_result-customer_id }| ).
+    out->write( |Nome: { ls_result-first_name } { ls_result-last_name }| ).
+    out->write( |Cidade: { ls_result-city }| ).
+    out->write( |Pais: { ls_result-country_code }| ).
+    out->write( '--------------------------------------' ).
+
+  ENDLOOP.
+
+ENDMETHOD.
+
+ENDCLASS.

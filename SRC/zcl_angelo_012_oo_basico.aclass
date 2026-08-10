@@ -1,0 +1,100 @@
+CLASS zcl_angelo_012_oo_basico DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+  PRIVATE SECTION.
+
+    DATA mv_travel_id     TYPE /dmo/travel_id.
+    DATA mv_agency_id     TYPE /dmo/agency_id.
+    DATA mv_customer_id   TYPE /dmo/customer_id.
+
+    DATA mv_begin_date    TYPE /dmo/begin_date.
+    DATA mv_end_date      TYPE /dmo/end_date.
+
+    DATA mv_booking_fee   TYPE /dmo/booking_fee.
+    DATA mv_total_price   TYPE /dmo/total_price.
+    DATA mv_currency_code TYPE /dmo/currency_code.
+
+    DATA mv_description   TYPE /dmo/description.
+    DATA mv_status        TYPE /dmo/travel_status.
+
+    METHODS load
+      IMPORTING
+        iv_travel_id TYPE /dmo/travel_id
+      RETURNING
+        VALUE(rv_found) TYPE abap_bool.
+
+    METHODS display
+      IMPORTING
+        io_out TYPE REF TO if_oo_adt_classrun_out.
+
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_012_oo_basico IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    DATA(lv_found) = me->load( iv_travel_id = '00000123' ).
+
+    IF lv_found = abap_true.
+      out->write( 'Viagem carregada com sucesso' ).
+      me->display( io_out = out ).
+    ELSE.
+      out->write( 'Viagem nao encontrada' ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD load.
+
+    SELECT SINGLE
+           travel_id,
+           agency_id,
+           customer_id,
+           begin_date,
+           end_date,
+           booking_fee,
+           total_price,
+           currency_code,
+           description,
+           status
+      FROM /dmo/travel
+      WHERE travel_id = @iv_travel_id
+      INTO ( @mv_travel_id,
+             @mv_agency_id,
+             @mv_customer_id,
+             @mv_begin_date,
+             @mv_end_date,
+             @mv_booking_fee,
+             @mv_total_price,
+             @mv_currency_code,
+             @mv_description,
+             @mv_status ).
+
+    IF sy-subrc = 0.
+      rv_found = abap_true.
+    ELSE.
+      rv_found = abap_false.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD display.
+
+    io_out->write( mv_travel_id ).
+    io_out->write( mv_description ).
+    io_out->write( mv_total_price ).
+    io_out->write( mv_currency_code ).
+    io_out->write( mv_status ).
+
+  ENDMETHOD.
+
+ENDCLASS.

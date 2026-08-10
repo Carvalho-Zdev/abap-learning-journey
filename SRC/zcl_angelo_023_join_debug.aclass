@@ -1,0 +1,49 @@
+CLASS zcl_angelo_023_join_debug DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_023_join_debug IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+  SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS travel_id,
+         customer_id,
+         description,
+         total_price,
+         currency_code,
+         first_name,
+         last_name,
+         city,
+         country_code
+  INTO TABLE @DATA(lt_result)
+  UP TO 10 ROWS.
+
+    out->write( |Quantidade encontrada: { lines( lt_result ) }| ).
+    out->write( '--------------------------------------' ).
+
+    LOOP AT lt_result INTO DATA(ls_result).
+
+      out->write( |Viagem: { ls_result-travel_id }| ).
+      out->write( |Cliente ID: { ls_result-customer_id }| ).
+      out->write( |Nome: { ls_result-first_name } { ls_result-last_name }| ).
+      out->write( |Cidade: { ls_result-city }| ).
+      out->write( |Pais: { ls_result-country_code }| ).
+      out->write( |Descricao: { ls_result-description }| ).
+      out->write( |Valor: { ls_result-total_price } { ls_result-currency_code }| ).
+      out->write( '--------------------------------------' ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

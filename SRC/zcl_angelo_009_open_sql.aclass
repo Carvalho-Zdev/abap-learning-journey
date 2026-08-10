@@ -1,0 +1,57 @@
+CLASS zcl_angelo_009_open_sql DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+    TYPES: BEGIN OF ty_resultado,
+             travel_id     TYPE /dmo/travel-travel_id,
+             customer_id   TYPE /dmo/travel-customer_id,
+             first_name    TYPE /dmo/customer-first_name,
+             last_name     TYPE /dmo/customer-last_name,
+             total_price   TYPE /dmo/travel-total_price,
+             currency_code TYPE /dmo/travel-currency_code,
+             agency_id     TYPE /dmo/travel-agency_id,
+           END OF ty_resultado.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_009_open_sql IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    DATA:
+      lt_resultado TYPE TABLE OF ty_resultado,
+      ls_resultado TYPE ty_resultado.
+
+    SELECT
+        t~travel_id,
+        t~customer_id,
+        c~first_name,
+        c~last_name,
+        t~total_price,
+        t~currency_code,
+        t~agency_id
+      FROM /dmo/travel AS t
+      INNER JOIN /dmo/customer AS c
+        ON t~customer_id = c~customer_id
+      WHERE t~total_price > 20000
+      AND t~currency_code = 'EUR'
+      ORDER BY t~total_price DESCENDING
+      INTO TABLE @lt_resultado.
+
+    out->write( |Quantidade encontrada: { lines( lt_resultado ) }| ).
+
+    LOOP AT lt_resultado INTO ls_resultado.
+      out->write( |Travel: { ls_resultado-travel_id } Cliente: { ls_resultado-first_name } { ls_resultado-last_name } Valor: { ls_resultado-total_price } Moeda: { ls_resultado-currency_code } Agência: { ls_resultado-agency_id }| ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

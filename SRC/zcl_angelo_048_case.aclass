@@ -1,0 +1,54 @@
+CLASS zcl_angelo_048_case DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_048_case IMPLEMENTATION.
+
+ METHOD if_oo_adt_classrun~main.
+
+  SELECT FROM /dmo/travel
+    FIELDS
+      agency_id,
+      AVG( total_price ) AS average_price
+    WHERE
+      currency_code = 'EUR'
+    GROUP BY
+      agency_id
+    ORDER BY
+      average_price DESCENDING
+    INTO TABLE @DATA(lt_result).
+
+  out->write(
+    |Total de agências: { lines( lt_result ) }|
+  ).
+
+  LOOP AT lt_result INTO DATA(ls_result).
+
+    DATA(lv_category) = COND string(
+      WHEN ls_result-average_price > 7000
+        THEN `VIP`
+      ELSE
+        `NORMAL`
+    ).
+
+    out->write(
+      |Agência: { ls_result-agency_id } - | &&
+      |Média: { ls_result-average_price } - | &&
+      |Categoria: { lv_category }|
+    ).
+
+  ENDLOOP.
+
+ENDMETHOD.
+
+
+
+
+ENDCLASS.

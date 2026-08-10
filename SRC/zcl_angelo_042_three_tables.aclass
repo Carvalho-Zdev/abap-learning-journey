@@ -1,0 +1,57 @@
+CLASS zcl_angelo_042_three_tables DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_042_three_tables IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    SELECT
+      FROM /dmo/travel AS travel
+
+      INNER JOIN /dmo/customer AS customer
+        ON customer~customer_id = travel~customer_id
+
+      INNER JOIN /dmo/agency AS agency
+        ON agency~agency_id = travel~agency_id
+
+      FIELDS
+        travel~travel_id,
+        travel~customer_id,
+        customer~first_name,
+        customer~last_name,
+        travel~agency_id,
+        agency~name AS agency_name,
+        travel~total_price,
+        travel~currency_code
+
+      WHERE travel~currency_code = 'EUR'
+
+      ORDER BY travel~total_price DESCENDING
+
+      INTO TABLE @DATA(lt_travels)
+
+      UP TO 10 ROWS.
+
+    LOOP AT lt_travels INTO DATA(ls_travel).
+
+      out->write(
+        |{ sy-tabix } - |
+        && |Travel: { ls_travel-travel_id } - |
+        && |Cliente: { ls_travel-first_name } { ls_travel-last_name } - |
+        && |Agência: { ls_travel-agency_name } - |
+        && |Valor: { ls_travel-total_price } { ls_travel-currency_code }|
+      ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

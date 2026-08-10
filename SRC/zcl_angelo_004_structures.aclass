@@ -1,0 +1,134 @@
+CLASS zcl_angelo_004_structures DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+      INTERFACES if_oo_adt_classrun.
+
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_004_structures IMPLEMENTATION.
+
+        METHOD if_oo_adt_classrun~main.
+TYPES: BEGIN OF ty_documento,
+         empresa   TYPE string,
+         cliente   TYPE string,
+         documento TYPE i,
+         valor     TYPE p LENGTH 10 DECIMALS 2,
+         status    TYPE string,
+       END OF ty_documento.
+
+DATA:
+  lt_documentos TYPE TABLE OF ty_documento,
+  ls_documento  TYPE ty_documento.
+
+lt_documentos = VALUE #(
+  ( empresa = 'AHB Finance' cliente = 'Cliente Brasil LTDA' documento = 1900001234 valor = '7800.50' status = 'ABERTO' )
+  ( empresa = 'AHB Finance' cliente = 'Europa AG'           documento = 1900001235 valor = '15000.00' status = 'FECHADO' )
+  ( empresa = 'GB Finance'  cliente = 'America AG'          documento = 1900001236 valor = '250000.00' status = 'ABERTO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente Minas'       documento = 1900001237 valor = '5200.00' status = 'ABERTO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente São Paulo'   documento = 1900001238 valor = '8900.00' status = 'FECHADO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente Rio'         documento = 1900001239 valor = '12500.00' status = 'ABERTO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente Paraná'      documento = 1900001240 valor = '3400.00' status = 'ABERTO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Bahia'       documento = 1900001241 valor = '9200.00' status = 'FECHADO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Goiás'       documento = 1900001242 valor = '18400.00' status = 'ABERTO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Chile'       documento = 1900001243 valor = '7300.00' status = 'FECHADO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Argentina'   documento = 1900001244 valor = '21400.00' status = 'ABERTO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente México'      documento = 1900001245 valor = '9800.00' status = 'FECHADO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente Peru'        documento = 1900001246 valor = '6200.00' status = 'ABERTO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Colômbia'    documento = 1900001247 valor = '11300.00' status = 'ABERTO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Equador'     documento = 1900001248 valor = '4700.00' status = 'FECHADO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente Bolívia'     documento = 1900001249 valor = '16500.00' status = 'ABERTO' )
+  ( empresa = 'AHB Finance' cliente = 'Cliente Paraguai'    documento = 1900001250 valor = '3100.00' status = 'FECHADO' )
+  ( empresa = 'GB Finance'  cliente = 'Cliente Uruguai'     documento = 1900001251 valor = '14200.00' status = 'ABERTO' )
+).
+
+        DATA:
+          lv_total_aberto  TYPE p LENGTH 10 DECIMALS 2,
+          lv_total_fechado TYPE p LENGTH 10 DECIMALS 2,
+          lv_total         TYPE p LENGTH 10 DECIMALS 2,
+
+          lv_abertos       TYPE i,
+          lv_fechados      TYPE i,
+          lv_documentos     TYPE i,
+
+          lv_maior_valor    TYPE p LENGTH 10 DECIMALS 2,
+          lv_menor_valor    TYPE p LENGTH 10 DECIMALS 2,
+          lv_media          TYPE p LENGTH 10 DECIMALS 2,
+          lv_primeira       TYPE abap_bool.
+
+         lv_primeira = abap_true.
+
+     LOOP AT lt_documentos INTO ls_documento.
+
+     lv_documentos = lv_documentos + 1.
+     lv_total = lv_total + ls_documento-valor.
+
+  IF lv_primeira = abap_true.
+
+    lv_maior_valor = ls_documento-valor.
+    lv_menor_valor = ls_documento-valor.
+
+    lv_primeira = abap_false.
+
+  ENDIF.
+
+  IF ls_documento-valor > lv_maior_valor.
+
+    lv_maior_valor = ls_documento-valor.
+
+  ENDIF.
+
+  IF ls_documento-status = 'ABERTO'.
+
+    lv_abertos = lv_abertos + 1.
+    lv_total_aberto = lv_total_aberto + ls_documento-valor.
+
+  ELSE.
+
+    lv_fechados = lv_fechados + 1.
+    lv_total_fechado = lv_total_fechado + ls_documento-valor.
+
+  ENDIF.
+
+ENDLOOP.
+
+
+
+    out->write( '--------------------------' ).
+    out->write( 'TOTAL EM ABERTO' ).
+    out->write( lv_total_aberto ).
+
+    out->write( '--------------------------' ).
+    out->write( 'TOTAL FECHADO' ).
+    out->write( lv_total_fechado ).
+
+    out->write( '--------------------------' ).
+    out->write( 'DOCUMENTOS ABERTOS' ).
+    out->write( lv_abertos ).
+
+    out->write( '--------------------------' ).
+    out->write( 'DOCUMENTOS FECHADOS' ).
+    out->write( lv_fechados ).
+
+    out->write( '--------------------------' ).
+    out->write( 'TOTAL DE DOCUMENTOS' ).
+    out->write( lv_documentos ).
+
+    out->write( '--------------------------' ).
+    out->write( 'MAIOR VALOR' ).
+    out->write( lv_maior_valor ).
+
+
+
+  ENDMETHOD.
+
+ENDCLASS.
+

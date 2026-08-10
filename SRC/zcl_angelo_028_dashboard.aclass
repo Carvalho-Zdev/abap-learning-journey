@@ -1,0 +1,138 @@
+CLASS zcl_angelo_028_dashboard DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_028_dashboard IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+
+  SELECT
+    FROM zi_angelo_travel_customer
+    FIELDS COUNT( * )
+    INTO @DATA(lv_total_trips).
+
+
+    SELECT
+      FROM zi_angelo_travel_customer
+      FIELDS COUNT( DISTINCT customer_id  )
+      INTO @DATA(lv_unique_customers).
+
+
+        SELECT
+    FROM zi_angelo_travel_customer
+    FIELDS city,
+           COUNT( * ) AS total_trips
+    GROUP BY city
+    ORDER BY total_trips DESCENDING
+    INTO TABLE @DATA(lt_top_city)
+    UP TO 1 ROWS.
+
+    SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS country_code,
+         COUNT( * ) AS total_trips
+  GROUP BY country_code
+  ORDER BY total_trips DESCENDING
+  INTO TABLE @DATA(lt_top_country)
+  UP TO 1 ROWS.
+
+
+    SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS SUM( total_price )
+  WHERE currency_code = 'EUR'
+  INTO @DATA(lv_total_eur).
+
+
+  SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS AVG( total_price )
+  WHERE currency_code = 'EUR'
+  INTO @DATA(lv_average_eur).
+
+
+  SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS COUNT( * )
+  WHERE currency_code = 'EUR'
+  INTO @DATA(lv_trips_eur).
+
+
+  SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS MAX( total_price )
+  WHERE currency_code = 'EUR'
+  INTO @DATA(lv_max_eur).
+
+  SELECT
+  FROM zi_angelo_travel_customer
+  FIELDS MIN( total_price )
+  WHERE currency_code = 'EUR'
+  INTO @DATA(lv_min_eur).
+
+
+
+
+
+
+
+
+    out->write( 'DASHBOARD GERENCIAL' ).
+    out->write( '--------------------------------------' ).
+    out->write( |Total de viagens: { lv_total_trips }| ).
+    out->write( |Clientes diferentes: { lv_unique_customers }| ).
+    out->write( |Valor total das viagens em EUR: { lv_total_eur }|
+).
+
+ out->write(
+  |Valor medio das viagens em EUR: { lv_average_eur DECIMALS = 2 }|
+).
+
+  out->write(
+  |Quantidade de viagens em EUR: { lv_trips_eur }|
+).
+
+out->write(
+  |Maior valor de viagem em EUR: { lv_max_eur DECIMALS = 2 }|
+).
+
+
+out->write(
+  |Menor valor de viagem em EUR: { lv_min_eur DECIMALS = 2 }|
+).
+
+
+
+
+ READ TABLE lt_top_city INTO DATA(ls_top_city) INDEX 1.
+
+  IF sy-subrc = 0.
+
+    out->write(
+      |Cidade líder: { ls_top_city-city } - Viagens: { ls_top_city-total_trips }|
+    ).
+
+  ENDIF.
+
+
+READ TABLE lt_top_country INTO DATA(ls_top_country) INDEX 1.
+
+  IF sy-subrc = 0.
+
+  out->write(
+    |Pais lider: { ls_top_country-country_code } - Viagens: { ls_top_country-total_trips }|
+  ).
+
+   ENDIF.
+
+  ENDMETHOD.
+
+ENDCLASS.

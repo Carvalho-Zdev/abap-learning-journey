@@ -1,0 +1,68 @@
+CLASS zcl_angelo_055_encapsulation DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+  INTERFACES if_oo_adt_classrum.
+
+  METHODS construtor
+  IMPORTING
+   iv_travel_id TYPE /dmo/travel_id OPTIONAL.
+
+   METHODS get_travel_id
+    RETURNING
+      VALUE(rv_travel_id) TYPE /dmo/travel_id.
+
+    METHODS set_travel_id
+    IMPORTING
+    iv_travel_id TYPE /dmo/travel_id.
+
+
+
+  PRIVATE SECTION.
+
+  DATA mv_travel_id TYPE /dmo/travel_id.
+
+
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_055_encapsulation IMPLEMENTATION.
+
+
+METHOD constructor.
+
+me->mv_travel_id = iv_travel_id.
+
+ENDMETHOD.
+
+METHOD get_travel_id.
+
+rv_travel_id = me->mv_travel_id.
+
+ENDMETHOD.
+
+METHOD set_travel_id.
+
+me->mv_travel_id = iv_travel_id.
+
+ENDMETHOD.
+
+
+
+
+
+
+METHOD if_oo_adt_classrun~main.
+
+
+
+
+
+ENDMETHOD.
+
+
+ENDCLASS.

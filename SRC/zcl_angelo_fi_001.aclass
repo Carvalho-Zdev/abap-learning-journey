@@ -1,0 +1,73 @@
+CLASS zcl_angelo_fi_001 DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+   CLASS zcl_angelo_fi_001 IMPLEMENTATION.
+    METHOD if_oo_adt_classrun~main.
+
+TYPES: BEGIN OF ty_documento,
+         empresa TYPE string,
+         client  TYPE string,
+         valor   TYPE p LENGTH 10 DECIMALS 2,
+         status  TYPE string,
+       END OF ty_documento.
+
+         DATA:
+             ls_documento1 TYPE ty_documento,
+             ls_documento2 TYPE ty_documento,
+             ls_documento3 TYPE ty_documento.
+
+       ls_documento1-empresa = 'AHB Finance'.
+       ls_documento1-client = 'Cliente Brasil LDTA'.
+       ls_documento1-valor = '7800.50'.
+       ls_documento1-status = 'ABERTO'.
+
+
+     out->write( '------------------------' ).
+     out->write( 'DOCUMENTO 1' ).
+     out->write( ls_documento1-empresa ).
+     out->write( ls_documento1-client ).
+     out->write( ls_documento1-valor ).
+     out->write( ls_documento1-status ).
+
+
+          ls_documento2-empresa = 'AHB Finance'.
+          ls_documento2-client = 'Europa AG Cliente'.
+          ls_documento2-valor  = '15000.00'.
+          ls_documento2-status = 'FECHADO'.
+
+
+
+          out->write( '------------------------' ).
+          out->write( 'DOCUMENTO 2' ).
+          out->write( ls_documento2-empresa ).
+          out->write( ls_documento2-client ).
+          out->write( ls_documento2-valor ).
+          out->write( ls_documento2-status ).
+
+
+
+          ls_documento3-empresa = 'GB Finance'.
+          ls_documento3-client = 'America AG Cliente'.
+          ls_documento3-valor  = '250000'.
+          ls_documento3-status = 'ABERTO'.
+
+
+
+          out->write( '------------------------' ).
+          out->write( 'DOCUMENTO 3' ).
+          out->write( ls_documento3-empresa ).
+          out->write( ls_documento3-client ).
+          out->write( ls_documento3-valor ).
+          out->write( ls_documento3-status ).
+
+
+  ENDMETHOD.
+
+ENDCLASS.

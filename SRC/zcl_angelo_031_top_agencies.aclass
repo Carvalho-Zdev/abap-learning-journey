@@ -1,0 +1,42 @@
+CLASS zcl_angelo_031_top_agencies DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+     INTERFACES if_oo_adt_classrun.
+ENDCLASS.
+
+
+
+CLASS zcl_angelo_031_top_agencies IMPLEMENTATION.
+
+
+METHOD if_oo_adt_classrun~main.
+
+out->write( 'TOP 10 AGENCIAS' ).
+out->write( '--------------------------------------' ).
+
+
+SELECT
+   FROM zi_angelo_travel_customer
+   FIELDS agency_id,
+       COUNT( * ) AS  total_trips
+   GROUP BY agency_id
+   ORDER BY total_trips DESCENDING,
+              agency_id ASCENDING
+   INTO TABLE @DATA(lt_top_agencies)
+   UP TO 10 ROWS.
+
+   LOOP AT lt_top_agencies INTO DATA(ls_top_agency).
+
+  out->write(
+    |{ sy-tabix } - Agencia: { ls_top_agency-agency_id } - |
+    && |Viagens: { ls_top_agency-total_trips }|
+  ).
+
+ENDLOOP.
+
+ENDMETHOD.
+
+ENDCLASS.

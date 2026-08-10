@@ -1,0 +1,42 @@
+CLASS zcl_angelo_027_top_customers DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_027_top_customers IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    SELECT
+      FROM zi_angelo_travel_customer
+      FIELDS customer_id,
+             first_name,
+             last_name,
+             COUNT( * ) AS total_trips
+      GROUP BY customer_id,
+               first_name,
+               last_name
+      ORDER BY total_trips DESCENDING
+      INTO TABLE @DATA(lt_result)
+      UP TO 10 ROWS.
+
+    out->write( |Top clientes encontrados: { lines( lt_result ) }| ).
+    out->write( '--------------------------------------------' ).
+
+    LOOP AT lt_result INTO DATA(ls_result).
+
+      out->write(
+        |{ sy-tabix }. Cliente: { ls_result-customer_id } - { ls_result-first_name } { ls_result-last_name } - Viagens: { ls_result-total_trips }|
+      ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

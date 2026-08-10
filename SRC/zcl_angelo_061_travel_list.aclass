@@ -1,0 +1,65 @@
+CLASS zcl_angelo_061_travel_list DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun.
+
+  PRIVATE SECTION.
+
+    DATA mt_travels
+      TYPE STANDARD TABLE OF REF TO zcl_angelo_060_save
+      WITH EMPTY KEY.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_061_travel_list IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    DATA(lo_travel_1) = NEW zcl_angelo_060_save( ).
+    DATA(lo_travel_2) = NEW zcl_angelo_060_save( ).
+    DATA(lo_travel_3) = NEW zcl_angelo_060_save( ).
+
+    lo_travel_1->load(
+      iv_travel_id = '00000031'
+    ).
+
+    lo_travel_2->load(
+      iv_travel_id = '00000034'
+    ).
+
+    lo_travel_3->load(
+      iv_travel_id = '00000035'
+    ).
+
+    IF lo_travel_1->is_found( ) = abap_true.
+      APPEND lo_travel_1 TO me->mt_travels.
+    ENDIF.
+
+    IF lo_travel_2->is_found( ) = abap_true.
+      APPEND lo_travel_2 TO me->mt_travels.
+    ENDIF.
+
+    IF lo_travel_3->is_found( ) = abap_true.
+      APPEND lo_travel_3 TO me->mt_travels.
+    ENDIF.
+
+    out->write(
+      |Number of travel objects: { lines( me->mt_travels ) }|
+    ).
+
+    LOOP AT me->mt_travels INTO DATA(lo_travel).
+
+      out->write(
+        lo_travel->get_summary( )
+      ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

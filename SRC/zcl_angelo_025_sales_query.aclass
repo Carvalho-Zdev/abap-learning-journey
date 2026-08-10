@@ -1,0 +1,168 @@
+CLASS zcl_angelo_025_sales_query DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_rap_query_provider.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_025_sales_query IMPLEMENTATION.
+
+  METHOD if_rap_query_provider~select.
+
+    TYPES:
+      BEGIN OF ty_sales,
+    orderid      TYPE c LENGTH 4,
+    customerid   TYPE c LENGTH 4,
+    customername TYPE c LENGTH 40,
+    city         TYPE c LENGTH 30,
+    product      TYPE c LENGTH 60,
+    quantity     TYPE i,
+    unitprice    TYPE p LENGTH 8 DECIMALS 2,
+    discount     TYPE p LENGTH 8 DECIMALS 2,
+    totalprice   TYPE p LENGTH 8 DECIMALS 2,
+    status       TYPE c LENGTH 10,
+    duedate      TYPE d,
+    latetext     TYPE c LENGTH 3,
+      END OF ty_sales.
+
+    DATA lt_sales TYPE STANDARD TABLE OF ty_sales WITH EMPTY KEY.
+
+lt_sales = VALUE #(
+  (
+    orderid      = 'P001'
+    customerid   = 'C001'
+    customername = 'Mercado Central'
+    city         = 'Belo Horizonte'
+    product      = 'Salmao congelado 10kg'
+    quantity     = 20
+    unitprice    = '780.00'
+    discount     = '300.00'
+    totalprice   = '15300.00'
+    status       = 'OPEN'
+    duedate      = '20260710'
+    latetext     = 'NAO'
+  )
+  (
+    orderid      = 'P002'
+    customerid   = 'C002'
+    customername = 'Restaurante Sakura'
+    city         = 'Sao Paulo'
+    product      = 'File de salmao 5kg'
+    quantity     = 40
+    unitprice    = '410.00'
+    discount     = '500.00'
+    totalprice   = '15900.00'
+    status       = 'OPEN'
+    duedate      = '20260703'
+    latetext     = 'SIM'
+  )
+  (
+    orderid      = 'P003'
+    customerid   = 'C003'
+    customername = 'Peixaria Atlantico'
+    city         = 'Rio de Janeiro'
+    product      = 'Salmao em porcoes 2kg'
+    quantity     = 30
+    unitprice    = '185.00'
+    discount     = '0.00'
+    totalprice   = '5550.00'
+    status       = 'CLOSED'
+    duedate      = '20260628'
+    latetext     = 'NAO'
+  )
+  (
+    orderid      = 'P004'
+    customerid   = 'C004'
+    customername = 'Emporio Premium'
+    city         = 'Curitiba'
+    product      = 'Caixa premium 12kg'
+    quantity     = 15
+    unitprice    = '980.00'
+    discount     = '800.00'
+    totalprice   = '13900.00'
+    status       = 'OPEN'
+    duedate      = '20260715'
+    latetext     = 'NAO'
+  )
+  (
+    orderid      = 'P005'
+    customerid   = 'C005'
+    customername = 'Hotel Mar Azul'
+    city         = 'Vitoria'
+    product      = 'File congelado 5kg'
+    quantity     = 18
+    unitprice    = '430.00'
+    discount     = '150.00'
+    totalprice   = '7590.00'
+    status       = 'CLOSED'
+    duedate      = '20260701'
+    latetext     = 'NAO'
+  )
+  (
+    orderid      = 'P006'
+    customerid   = 'C002'
+    customername = 'Restaurante Sakura'
+    city         = 'Sao Paulo'
+    product      = 'Salmao congelado 10kg'
+    quantity     = 10
+    unitprice    = '760.00'
+    discount     = '0.00'
+    totalprice   = '7600.00'
+    status       = 'OPEN'
+    duedate      = '20260720'
+    latetext     = 'NAO'
+  )
+  (
+    orderid      = 'P007'
+    customerid   = 'C001'
+    customername = 'Mercado Central'
+    city         = 'Belo Horizonte'
+    product      = 'Caixa file 5kg'
+    quantity     = 22
+    unitprice    = '420.00'
+    discount     = '200.00'
+    totalprice   = '9040.00'
+    status       = 'OPEN'
+    duedate      = '20260705'
+    latetext     = 'SIM'
+  )
+).
+
+        DATA(lo_paging) = io_request->get_paging( ).
+
+    DATA(lv_offset)    = lo_paging->get_offset( ).
+    DATA(lv_page_size) = lo_paging->get_page_size( ).
+
+    DATA lt_page TYPE STANDARD TABLE OF ty_sales WITH EMPTY KEY.
+
+    IF io_request->is_total_numb_of_rec_requested( ) = abap_true.
+      io_response->set_total_number_of_records(
+        lines( lt_sales )
+      ).
+    ENDIF.
+
+    IF io_request->is_data_requested( ) = abap_true.
+
+      IF lv_page_size < 0.
+        lt_page = lt_sales.
+      ELSE.
+        LOOP AT lt_sales INTO DATA(ls_sale)
+          FROM lv_offset + 1
+          TO lv_offset + lv_page_size.
+
+          APPEND ls_sale TO lt_page.
+
+        ENDLOOP.
+      ENDIF.
+
+      io_response->set_data( lt_page ).
+
+    ENDIF.
+
+  ENDMETHOD.
+
+ENDCLASS.

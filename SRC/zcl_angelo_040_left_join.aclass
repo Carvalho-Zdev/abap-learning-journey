@@ -1,0 +1,43 @@
+CLASS zcl_angelo_040_left_join DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_040_left_join IMPLEMENTATION.
+
+  METHOD if_oo_adt_classrun~main.
+
+    SELECT
+      FROM /dmo/travel AS travel
+      LEFT OUTER JOIN /dmo/customer AS customer
+        ON customer~customer_id = travel~customer_id
+      FIELDS travel~travel_id,
+             travel~customer_id,
+             travel~total_price,
+             travel~currency_code,
+             customer~first_name,
+             customer~last_name
+      ORDER BY travel~travel_id
+      INTO TABLE @DATA(lt_travels)
+      UP TO 10 ROWS.
+
+    LOOP AT lt_travels INTO DATA(ls_travel).
+
+      out->write(
+        |{ sy-tabix } - Travel: { ls_travel-travel_id } - |
+        && |Cliente: { ls_travel-customer_id } - |
+        && |Nome: { ls_travel-first_name } { ls_travel-last_name } - |
+        && |Valor: { ls_travel-total_price } { ls_travel-currency_code }|
+      ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.

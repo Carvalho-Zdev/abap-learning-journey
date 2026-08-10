@@ -1,0 +1,64 @@
+CLASS zcl_angelo_057_summary DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun.
+
+    METHODS constructor
+      IMPORTING
+        iv_travel_id   TYPE /dmo/travel_id OPTIONAL
+        iv_customer_id TYPE /dmo/customer_id OPTIONAL
+        iv_agency_id   TYPE /dmo/agency_id OPTIONAL.
+
+    METHODS get_summary
+      RETURNING
+        VALUE(rv_summary) TYPE string.
+
+  PRIVATE SECTION.
+
+    DATA mv_travel_id   TYPE /dmo/travel_id.
+    DATA mv_customer_id TYPE /dmo/customer_id.
+    DATA mv_agency_id   TYPE /dmo/agency_id.
+
+ENDCLASS.
+
+
+CLASS zcl_angelo_057_summary IMPLEMENTATION.
+
+  METHOD constructor.
+
+    me->mv_travel_id   = iv_travel_id.
+    me->mv_customer_id = iv_customer_id.
+    me->mv_agency_id   = iv_agency_id.
+
+  ENDMETHOD.
+
+
+  METHOD get_summary.
+
+    rv_summary =
+      |Travel ID: { me->mv_travel_id }{ cl_abap_char_utilities=>newline }| &&
+      |Customer ID: { me->mv_customer_id }{ cl_abap_char_utilities=>newline }| &&
+      |Agency ID: { me->mv_agency_id }|.
+
+  ENDMETHOD.
+
+
+  METHOD if_oo_adt_classrun~main.
+
+    DATA(lo_travel) = NEW zcl_angelo_057_summary(
+      iv_travel_id   = '00000001'
+      iv_customer_id = '000001'
+      iv_agency_id   = '070001'
+    ).
+
+    out->write(
+      lo_travel->get_summary( )
+    ).
+
+  ENDMETHOD.
+
+ENDCLASS.
